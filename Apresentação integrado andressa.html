@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iGreen — Automação Operacional 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e1117;--surface:#161b24;--surface2:#1c2333;--surface3:#222d3a;
+  --border:#263040;--border2:#2e3c4e;
+  --accent:#22c55e;--ag:rgba(34,197,94,.12);
+  --red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#a855f7;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.pres{max-width:960px;margin:0 auto}
+.slide{display:none;animation:fadeIn .3s ease}
+.slide.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#000}
+.logo-txt{font-size:13px;font-weight:700;color:var(--text)}
+.slide-counter{font-size:11px;color:var(--text3);background:var(--surface2);padding:4px 12px;border-radius:100px;border:1px solid var(--border)}
+
+/* NAV */
+.nav-wrap{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:8px;overflow-x:auto}
+.nav-pill{padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);white-space:nowrap;transition:all .18s;font-family:inherit}
+.nav-pill:hover{color:var(--text);border-color:var(--border2)}
+.nav-pill.active{background:var(--ag);color:var(--accent);border-color:rgba(34,197,94,.3)}
+.nav-pill.purple{}.nav-pill.purple.active{background:rgba(168,85,247,.1);color:var(--purple);border-color:rgba(168,85,247,.3)}
+.nav-pill.blue{}.nav-pill.blue.active{background:rgba(59,130,246,.1);color:var(--blue);border-color:rgba(59,130,246,.3)}
+.nav-pill.amber{}.nav-pill.amber.active{background:rgba(245,158,11,.1);color:var(--amber);border-color:rgba(245,158,11,.3)}
+
+.nav-btns{display:flex;gap:8px;justify-content:space-between;padding:12px 24px;background:var(--surface);border-top:1px solid var(--border);position:sticky;bottom:0}
+.btn{padding:8px 20px;border-radius:8px;border:none;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px}
+.btn-prev{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-prev:hover{color:var(--text)}
+.btn-next{background:var(--accent);color:#000}
+.btn-next:hover{background:#16a34a}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+
+.slide-body{padding:32px 28px;min-height:480px}
+
+/* CAPA */
+.capa{text-align:center;padding:48px 28px 32px}
+.capa-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:4px 14px;border-radius:100px;background:var(--ag);color:var(--accent);border:1px solid rgba(34,197,94,.2);margin-bottom:18px}
+.capa h1{font-size:30px;font-weight:700;line-height:1.25;margin-bottom:10px;letter-spacing:-.5px}
+.capa h1 span{color:var(--accent)}
+.capa p{font-size:13px;color:var(--text2);max-width:560px;margin:0 auto 32px;line-height:1.7}
+.capa-projects{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px;margin:0 auto 24px}
+.capa-proj{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:left;border-top:3px solid var(--accent)}
+.capa-proj.purple{border-top-color:var(--purple)}
+.capa-proj-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;color:var(--accent)}
+.capa-proj.purple .capa-proj-tag{color:var(--purple)}
+.capa-proj h3{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.capa-proj p{font-size:11px;color:var(--text3);line-height:1.5}
+.capa-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:500px;margin:0 auto}
+.capa-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px}
+.capa-stat-val{font-size:20px;font-weight:700;color:var(--accent);margin-bottom:2px}
+.capa-stat-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+
+/* SECTION HEADER */
+.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:5px}
+.sec-title.purple{color:var(--purple)}
+.sec-title.blue{color:var(--blue)}
+.sec-title.amber{color:var(--amber)}
+.slide-title{font-size:22px;font-weight:700;margin-bottom:7px;letter-spacing:-.3px}
+.slide-sub{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.6;max-width:640px}
+
+/* PROBLEM CARDS */
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.problem-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:15px;border-left:3px solid var(--red)}
+.problem-card.amber{border-left-color:var(--amber)}
+.problem-card h3{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px}
+.problem-card p{font-size:11px;color:var(--text2);line-height:1.5}
+.picon{font-size:18px;margin-bottom:7px}
+
+/* FLOW MANUAL */
+.flow-manual{display:flex;flex-direction:column;gap:0}
+.flow-step{display:flex;gap:12px;position:relative}
+.flow-step::before{content:'';position:absolute;left:16px;top:40px;bottom:-2px;width:1px;background:var(--border)}
+.flow-step:last-child::before{display:none}
+.flow-num{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);flex-shrink:0;z-index:1;margin-top:4px}
+.flow-content{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:7px;flex:1}
+.flow-content h4{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.flow-content p{font-size:11px;color:var(--text3);line-height:1.45}
+.flow-tag{display:inline-flex;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+.tag-manual{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.tag-time{background:rgba(245,158,11,.1);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.tag-plat{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+
+/* COMPARE */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.compare-col{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.compare-header{padding:12px 15px;display:flex;align-items:center;gap:8px}
+.compare-header.before{background:rgba(239,68,68,.07);border-bottom:1px solid rgba(239,68,68,.15)}
+.compare-header.after{background:rgba(34,197,94,.07);border-bottom:1px solid rgba(34,197,94,.15)}
+.compare-header h3{font-size:12px;font-weight:700}
+.compare-header.before h3{color:#f87171}
+.compare-header.after h3{color:var(--accent)}
+.compare-header.after.purple h3{color:#c084fc}
+.compare-header.after.purple{background:rgba(168,85,247,.07);border-bottom-color:rgba(168,85,247,.15)}
+.compare-item{padding:9px 15px;border-bottom:.5px solid var(--border);display:flex;align-items:flex-start;gap:9px}
+.compare-item:last-child{border-bottom:none}
+.ci-icon{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;margin-top:2px}
+.icon-bad{background:rgba(239,68,68,.15);color:#f87171}
+.icon-good{background:rgba(34,197,94,.15);color:var(--accent)}
+.icon-good.purple{background:rgba(168,85,247,.15);color:#c084fc}
+.compare-item p{font-size:11px;color:var(--text2);line-height:1.5}
+
+/* RESULT CARDS */
+.results-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;position:relative;overflow:hidden}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.result-card.green::before{background:var(--accent)}
+.result-card.red::before{background:var(--red)}
+.result-card.blue::before{background:var(--blue)}
+.result-card.amber::before{background:var(--amber)}
+.result-card.purple::before{background:var(--purple)}
+.result-val{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.result-card.green .result-val{color:var(--accent)}
+.result-card.red .result-val{color:#f87171}
+.result-card.blue .result-val{color:#60a5fa}
+.result-card.amber .result-val{color:#fbbf24}
+.result-card.purple .result-val{color:#c084fc}
+.result-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.result-sub{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* STAT HIGHLIGHT */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-box-val{font-size:26px;font-weight:700;margin-bottom:3px}
+.stat-box-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+
+/* SOLUTION CARDS */
+.solution-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.sol-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:15px;border-left:3px solid var(--accent)}
+.sol-card.purple{border-left-color:var(--purple)}
+.sol-card h3{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px}
+.sol-card p{font-size:11px;color:var(--text2);line-height:1.5}
+.sicon{font-size:17px;margin-bottom:7px}
+
+/* STEPS */
+.steps-list{display:flex;flex-direction:column;gap:9px}
+.step-item{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 14px}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--ag);border:1px solid rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0}
+.step-num.purple{background:rgba(168,85,247,.1);border-color:rgba(168,85,247,.2);color:var(--purple)}
+.step-content h4{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.step-content p{font-size:11px;color:var(--text3);line-height:1.5}
+.step-tag{display:inline-flex;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;margin-top:4px}
+.tag-done{background:rgba(34,197,94,.1);color:var(--accent);border:1px solid rgba(34,197,94,.2)}
+.tag-wip{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.tag-next{background:rgba(245,158,11,.1);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.tag-pending{background:rgba(168,85,247,.1);color:#c084fc;border:1px solid rgba(168,85,247,.2)}
+
+/* STATUS ABAS */
+.abas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.aba-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px;text-align:center}
+.aba-name{font-size:10px;font-weight:600;color:var(--text);margin-bottom:3px}
+.aba-dot{width:6px;height:6px;border-radius:50%;margin:0 auto 5px}
+.aba-desc{font-size:9px;color:var(--text3);line-height:1.4}
+
+/* IT INTEGRATION */
+.it-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.it-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:15px}
+.it-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.it-badge{font-size:9px;font-weight:700;padding:2px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.06em}
+.it-card h3{font-size:12px;font-weight:600;color:var(--text)}
+.it-card ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.it-card ul li{font-size:11px;color:var(--text2);padding-left:14px;position:relative;line-height:1.5}
+.it-card ul li::before{content:'→';position:absolute;left:0;color:var(--text3);font-size:10px}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.data-table th{text-align:left;padding:8px 12px;background:var(--surface2);color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;border-bottom:1px solid var(--border)}
+.data-table td{padding:8px 12px;color:var(--text2);border-bottom:.5px solid var(--border)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-flex;padding:2px 8px;border-radius:100px;font-size:9px;font-weight:700}
+.badge-red{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.badge-green{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.badge-amber{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.badge-blue{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.badge-purple{background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.2)}
+
+/* DIVIDER */
+.div-line{height:1px;background:var(--border);margin:20px 0}
+
+/* ALERT BOX */
+.alert{border-radius:10px;padding:13px 15px;margin:12px 0;display:flex;gap:10px;align-items:flex-start}
+.alert.red{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2)}
+.alert.green{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2)}
+.alert.amber{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2)}
+.alert.blue{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2)}
+.alert-icon{font-size:16px;flex-shrink:0}
+.alert-text h4{font-size:12px;font-weight:600;margin-bottom:3px}
+.alert-text p{font-size:11px;color:var(--text2);line-height:1.55}
+.alert.red h4{color:#f87171}
+.alert.green h4{color:#4ade80}
+.alert.amber h4{color:#fbbf24}
+.alert.blue h4{color:#60a5fa}
+
+/* AUTO FLOW */
+.auto-flow{display:flex;align-items:center;gap:6px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow-x:auto}
+.auto-step{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 13px;text-align:center;white-space:nowrap;flex-shrink:0}
+.auto-step-label{font-size:9px;color:var(--text3);margin-bottom:2px}
+.auto-step-val{font-size:11px;font-weight:600;color:var(--accent)}
+.auto-step-val.purple{color:#c084fc}
+.auto-arrow{color:var(--border2);font-size:14px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="pres">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">iG</div>
+      <div class="logo-txt">iGreen Energy — Automação Operacional 2026</div>
+    </div>
+    <div class="slide-counter" id="counter">Slide 1 de 10</div>
+  </div>
+
+  <div class="nav-wrap" id="nav-pills"></div>
+
+  <!-- ══ SLIDE 1 — CAPA ══ -->
+  <div class="slide active" id="s1">
+    <div class="capa">
+      <div class="capa-tag">Apresentação Técnica · Operações iGreen · Março 2026</div>
+      <h1>Dois sistemas.<br><span>Uma operação mais inteligente.</span></h1>
+      <p>Apresentação dos projetos de automação desenvolvidos para a área de inadimplência e faturamento — mostrando como era feito manualmente e como é feito agora.</p>
+      <div class="capa-projects">
+        <div class="capa-proj">
+          <div class="capa-proj-tag">Projeto 1 · Grimmjow</div>
+          <h3>Análise de Faturamento de Boletos</h3>
+          <p>Identificação automatizada de boletos duplicados, faltantes e instalações fora do prazo esperado.</p>
+        </div>
+        <div class="capa-proj purple">
+          <div class="capa-proj-tag" style="color:var(--purple)">Projeto 2 · Projeto BKO</div>
+          <h3>Centralização de Cancelamento e Retenção</h3>
+          <p>Tela única no BackOffice eliminando 3 plataformas e planilhas manuais no fluxo de cancelamento.</p>
+        </div>
+      </div>
+      <div class="capa-stats">
+        <div class="capa-stat">
+          <div class="capa-stat-val">20.075</div>
+          <div class="capa-stat-label">Cancelamentos Jan–Fev 2026</div>
+        </div>
+        <div class="capa-stat">
+          <div class="capa-stat-val">10,8%</div>
+          <div class="capa-stat-label">Sem motivo registrado</div>
+        </div>
+        <div class="capa-stat">
+          <div class="capa-stat-val">~0s</div>
+          <div class="capa-stat-label">Tempo de análise (antes: horas)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 2 — GRIMMJOW: O PROBLEMA ══ -->
+  <div class="slide" id="s2">
+    <div class="slide-body">
+      <div class="sec-title">Grimmjow · O Problema</div>
+      <div class="slide-title">Análise de boletos era 100% manual</div>
+      <div class="slide-sub">Identificar se um cliente tinha boletos a mais, a menos ou nenhum exigia cruzamento manual de planilhas sem nenhuma padronização.</div>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="picon">📋</div>
+          <h3>Processo inteiramente em Excel</h3>
+          <p>O analista baixava a planilha de recebíveis e a base de clientes e precisava criar fórmulas manualmente para cada instalação.</p>
+        </div>
+        <div class="problem-card">
+          <div class="picon">🔢</div>
+          <h3>Cálculo manual de boletos esperados</h3>
+          <p>Era necessário calcular =HOJE() − Data Ativo, dividir por 30 e comparar com a contagem real — para cada cliente individualmente.</p>
+        </div>
+        <div class="problem-card">
+          <div class="picon">❓</div>
+          <h3>Meses faltantes não identificados</h3>
+          <p>Saber quais meses específicos estavam ausentes exigia análise manual linha a linha — sem nenhuma automação de listagem.</p>
+        </div>
+        <div class="problem-card">
+          <div class="picon">🚫</div>
+          <h3>Casos especiais ignorados</h3>
+          <p>Clientes sem Data Ativo e clientes dentro do período de carência misturavam-se com os demais, gerando falsos negativos.</p>
+        </div>
+      </div>
+      <div class="alert amber" style="margin-top:16px">
+        <div class="alert-icon">⏱</div>
+        <div class="alert-text">
+          <h4>Custo operacional real</h4>
+          <p>Processar uma única fornecedora com milhares de instalações levava horas. Com 7 fornecedoras ativas, o analista gastava dias inteiros apenas identificando inconsistências que o sistema agora encontra em segundos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 3 — GRIMMJOW: COMO ERA ══ -->
+  <div class="slide" id="s3">
+    <div class="slide-body">
+      <div class="sec-title">Grimmjow · Processo Anterior</div>
+      <div class="slide-title">Passo a passo do processo manual</div>
+      <div class="slide-sub">O que o analista precisava fazer manualmente a cada ciclo de análise.</div>
+      <div class="flow-manual">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-content">
+            <h4>Download e consolidação das bases</h4>
+            <p>Baixar planilha de recebíveis da fornecedora + exportar base de clientes do BackOffice. Consolidar em um único arquivo manualmente.</p>
+            <span class="flow-tag tag-plat">BackOffice + fornecedora</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-content">
+            <h4>Calcular Data da 1ª Injeção</h4>
+            <p>Para cada cliente: Data Ativo + 120 dias (agora 90 dias). Criar coluna auxiliar e arrastar fórmula linha por linha.</p>
+            <span class="flow-tag tag-manual">Fórmula manual</span>
+            <span class="flow-tag tag-time" style="margin-left:4px">Por cliente</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-content">
+            <h4>Contar boletos existentes</h4>
+            <p>CONT.SE na coluna de instalação da base de recebíveis — cruzar com cada cliente da base de clientes via PROCV.</p>
+            <span class="flow-tag tag-manual">CONT.SE + PROCV</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-content">
+            <h4>Calcular boletos esperados e diferença</h4>
+            <p>=(HOJE()-Data1aInjecao)/30 arredondado manualmente. Subtrair boletos existentes. Sem padronização de arredondamento.</p>
+            <span class="flow-tag tag-manual">Fórmula manual</span>
+            <span class="flow-tag tag-time" style="margin-left:4px">Risco de erro</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-content">
+            <h4>Identificar meses faltantes</h4>
+            <p>Para diferença negativa: abrir cadastro do cliente → verificar quais meses de referência existiam nos recebíveis → anotar manualmente os ausentes.</p>
+            <span class="flow-tag tag-manual">Análise linha a linha</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">6</div>
+          <div class="flow-content">
+            <h4>Consulta ao Claude para meses faltantes</h4>
+            <p>Inserir código do cliente + referências existentes no Claude e solicitar a identificação dos meses ausentes — processo semi-automatizado.</p>
+            <span class="flow-tag tag-time">~2 min por cliente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 4 — GRIMMJOW: COMO É AGORA ══ -->
+  <div class="slide" id="s4">
+    <div class="slide-body">
+      <div class="sec-title">Grimmjow · Como é Agora</div>
+      <div class="slide-title">Análise automática em segundos</div>
+      <div class="slide-sub">O analista importa as planilhas, seleciona a fornecedora e clica em processar. Tudo o mais é automático.</div>
+      <div class="solution-grid">
+        <div class="sol-card">
+          <div class="sicon">🐍</div>
+          <h3>Backend Python</h3>
+          <p>Script que lê ambas as planilhas, cruza por instalação, calcula todos os valores e classifica cada cliente automaticamente.</p>
+        </div>
+        <div class="sol-card">
+          <div class="sicon">🖥️</div>
+          <h3>Interface desktop iGreen</h3>
+          <p>App com tema visual iGreen — upload simples de arquivos, filtro por fornecedora e log de execução em tempo real.</p>
+        </div>
+        <div class="sol-card">
+          <div class="sicon">📅</div>
+          <h3>Meses faltantes automáticos</h3>
+          <p>Para cada cliente NEGATIVO, o sistema lista exatamente quais meses de referência estão ausentes. Sem consulta manual.</p>
+        </div>
+        <div class="sol-card">
+          <div class="sicon">📊</div>
+          <h3>Excel com 6 abas organizadas</h3>
+          <p>Resultado separado por status: NEGATIVOS, POSITIVOS, ZERO, AINDA NAO FATURA, SEM DATA — com formatação clara.</p>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Fluxo automatizado</div>
+      <div class="auto-flow">
+        <div class="auto-step"><div class="auto-step-label">Upload</div><div class="auto-step-val">2 planilhas</div></div>
+        <div class="auto-arrow">→</div>
+        <div class="auto-step"><div class="auto-step-label">Filtro</div><div class="auto-step-val">Fornecedora</div></div>
+        <div class="auto-arrow">→</div>
+        <div class="auto-step"><div class="auto-step-label">Processamento</div><div class="auto-step-val">Automático</div></div>
+        <div class="auto-arrow">→</div>
+        <div class="auto-step"><div class="auto-step-label">Classificação</div><div class="auto-step-val">5 status</div></div>
+        <div class="auto-arrow">→</div>
+        <div class="auto-step"><div class="auto-step-label">Excel</div><div class="auto-step-val">Formatado</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 5 — GRIMMJOW: ANTES x DEPOIS ══ -->
+  <div class="slide" id="s5">
+    <div class="slide-body">
+      <div class="sec-title">Grimmjow · Comparativo</div>
+      <div class="slide-title">Antes vs Depois</div>
+      <div class="slide-sub">O que mudou para o analista com a automação da análise de faturamento.</div>
+      <div class="compare">
+        <div class="compare-col">
+          <div class="compare-header before"><h3>✗ Antes — Manual</h3></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Fórmulas manuais em Excel para cada cliente — risco de erro em cada linha</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Arredondamento inconsistente no cálculo de boletos esperados</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Meses faltantes identificados manualmente ou via consulta ao Claude</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Clientes sem Data Ativo misturados com os demais — falsos negativos</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Sem separação de clientes em carência (< 90 dias)</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Processo repetido do zero para cada fornecedora e cada ciclo</p></div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-header after"><h3>✓ Depois — Automatizado</h3></div>
+          <div class="compare-item"><div class="ci-icon icon-good">✓</div><p>Cálculo automático com arredondamento padronizado (floor) para todos</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good">✓</div><p>Meses faltantes listados automaticamente na coluna "Meses Faltantes"</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good">✓</div><p>Carência de 90 dias aplicada automaticamente — sem falso negativo</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good">✓</div><p>Clientes sem Data Ativo isolados em aba própria com ação clara</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good">✓</div><p>Filtro por fornecedora — processa uma ou todas de uma vez</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good">✓</div><p>Excel com tema claro, 6 abas e largura de coluna ajustada automaticamente</p></div>
+        </div>
+      </div>
+      <div class="div-line"></div>
+      <div class="abas-grid">
+        <div class="aba-item"><div class="aba-dot" style="background:var(--red)"></div><div class="aba-name">NEGATIVOS</div><div class="aba-desc">Boletos faltantes → chamado GD</div></div>
+        <div class="aba-item"><div class="aba-dot" style="background:var(--amber)"></div><div class="aba-name">POSITIVOS</div><div class="aba-desc">Possível duplicata → revisar</div></div>
+        <div class="aba-item"><div class="aba-dot" style="background:var(--accent)"></div><div class="aba-name">ZERO</div><div class="aba-desc">Faturamento correto → ok</div></div>
+        <div class="aba-item"><div class="aba-dot" style="background:var(--blue)"></div><div class="aba-name">AINDA NAO FATURA</div><div class="aba-desc">Dentro de 90 dias → monitorar</div></div>
+        <div class="aba-item"><div class="aba-dot" style="background:var(--text3)"></div><div class="aba-name">SEM DATA</div><div class="aba-desc">Data Ativo vazia → chamado GD</div></div>
+        <div class="aba-item"><div class="aba-dot" style="background:var(--purple)"></div><div class="aba-name">RESUMO</div><div class="aba-desc">Panorama geral por status</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 6 — PROJETO BKO: O PROBLEMA ══ -->
+  <div class="slide" id="s6">
+    <div class="slide-body">
+      <div class="sec-title purple">Projeto BKO · O Problema</div>
+      <div class="slide-title">Cancelamento fragmentado em 3 plataformas</div>
+      <div class="slide-sub">Hoje o colaborador precisa navegar entre ExperIP, BKO e Chatwoot — além de 2 abas separadas no BKO e planilhas manuais — para processar um único cancelamento.</div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-box-val" style="color:var(--red)">20.075</div><div class="stat-box-label">Cancelamentos Jan–Fev 2026</div></div>
+        <div class="stat-box"><div class="stat-box-val" style="color:var(--amber)">3.346h</div><div class="stat-box-label">Horas operacionais perdidas</div></div>
+        <div class="stat-box"><div class="stat-box-val" style="color:var(--purple)">10,8%</div><div class="stat-box-label">Sem motivo registrado</div></div>
+      </div>
+      <div class="problem-grid">
+        <div class="problem-card amber">
+          <div class="picon">🖥️</div>
+          <h3>3 plataformas + 2 abas no BKO</h3>
+          <p>ExperIP para ligação, BKO para atendimento e cancelamento em abas separadas, Chatwoot para HSM — tudo manual e sem integração.</p>
+        </div>
+        <div class="problem-card amber">
+          <div class="picon">⚖️</div>
+          <h3>Risco jurídico: HSM manual</h3>
+          <p>O HSM de cancelamento é a proteção contratual da iGreen. Hoje depende exclusivamente do colaborador enviá-lo — 482 casos com B.O/Procon/R.A em 2 meses.</p>
+        </div>
+        <div class="problem-card amber">
+          <div class="picon">📊</div>
+          <h3>10,8% sem motivo registrado</h3>
+          <p>2.166 clientes saíram da base sem que a iGreen soubesse o motivo — impossibilitando qualquer ação de retenção ou melhoria de produto.</p>
+        </div>
+        <div class="problem-card amber">
+          <div class="picon">🔄</div>
+          <h3>3.537 clientes com status incorreto</h3>
+          <p>Clientes registrados como cancelados que deveriam ser reprovados — comprometendo a confiabilidade do churn reportado.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 7 — PROJETO BKO: ANTES x DEPOIS ══ -->
+  <div class="slide" id="s7">
+    <div class="slide-body">
+      <div class="sec-title purple">Projeto BKO · Comparativo</div>
+      <div class="slide-title">Antes vs Depois</div>
+      <div class="slide-sub">9 etapas manuais em 3 plataformas reduzidas a 1 tela com ações automáticas.</div>
+      <div class="compare">
+        <div class="compare-col">
+          <div class="compare-header before"><h3>✗ Antes — 3 plataformas</h3></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>ExperIP + BKO (2 abas) + Chatwoot + planilha — 5 a 10 min por cancelamento</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Protocolo da ligação digitado manualmente — erros frequentes</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>HSM disparado manualmente via Chatwoot — esquecimentos frequentes</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Motivos de cancelamento inconsistentes — lista desatualizada</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Cancelamento ocorre mesmo com Validado Sucesso = N</p></div>
+          <div class="compare-item"><div class="ci-icon icon-bad">✕</div><p>Planilha de controle manual com risco de erro e retrabalho</p></div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-header after purple"><h3>✓ Depois — Tela única BKO</h3></div>
+          <div class="compare-item"><div class="ci-icon icon-good purple">✓</div><p>1 tela no BKO — todo o fluxo em menos de 2 minutos</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good purple">✓</div><p>Protocolo via dropdown automático API ExperIP — últimos 3 protocolos</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good purple">✓</div><p>HSM disparado automaticamente ao confirmar — risco jurídico zerado</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good purple">✓</div><p>18 motivos padronizados e obrigatórios — churn real rastreável</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good purple">✓</div><p>Trava automática se Validado Sucesso = N — redireciona para reprovação</p></div>
+          <div class="compare-item"><div class="ci-icon icon-good purple">✓</div><p>Dados direto no BKO — planilha eliminada completamente</p></div>
+        </div>
+      </div>
+      <div class="alert blue" style="margin-top:14px">
+        <div class="alert-icon">⚡</div>
+        <div class="alert-text">
+          <h4>Ganho operacional estimado</h4>
+          <p>Redução de até 80% no tempo por cancelamento (de 5–10 min para menos de 2 min). Com 20.075 cancelamentos em 2 meses, isso representa entre 1.000 e 2.500 horas recuperadas por ciclo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 8 — INTEGRAÇÃO TI (GRIMMJOW) ══ -->
+  <div class="slide" id="s8">
+    <div class="slide-body">
+      <div class="sec-title blue">Integração TI · Grimmjow</div>
+      <div class="slide-title">Como integrar o Grimmjow ao sistema interno</div>
+      <div class="slide-sub">Caminhos para o time de TI evoluir o sistema desktop atual para uma solução nativa no BackOffice iGreen.</div>
+      <div class="it-grid">
+        <div class="it-card">
+          <div class="it-card-header">
+            <div class="it-badge badge-green">Fase 1 · Imediato</div>
+          </div>
+          <h3 style="margin-bottom:8px">Deploy do app desktop na rede</h3>
+          <ul>
+            <li>Hospedar o Grimmjow.py em servidor interno</li>
+            <li>Criar atalho acessível a todos os analistas via rede</li>
+            <li>Nenhuma dependência de configuração local</li>
+            <li>Stack: Python 3 + Tkinter + Pandas já instalados</li>
+          </ul>
+        </div>
+        <div class="it-card">
+          <div class="it-card-header">
+            <div class="it-badge badge-blue">Fase 2 · API BackOffice</div>
+          </div>
+          <h3 style="margin-bottom:8px">Consumir dados direto da API</h3>
+          <ul>
+            <li>Substituir upload de planilhas por endpoints do BackOffice</li>
+            <li>GET /clientes → base de clientes com Data Ativo</li>
+            <li>GET /recebiveis/:fornecedora → boletos por instalação</li>
+            <li>Elimina etapa de download manual das bases</li>
+          </ul>
+        </div>
+        <div class="it-card">
+          <div class="it-card-header">
+            <div class="it-badge badge-amber">Fase 3 · Web no BKO</div>
+          </div>
+          <h3 style="margin-bottom:8px">Interface web dentro do BackOffice</h3>
+          <ul>
+            <li>Migrar a lógica Python para microserviço Flask/FastAPI</li>
+            <li>Criar rota no BKO: /analise-faturamento</li>
+            <li>Analista filtra fornecedora e dispara pelo próprio BKO</li>
+            <li>Resultado renderizado em tela — sem download de arquivo</li>
+          </ul>
+        </div>
+        <div class="it-card">
+          <div class="it-card-header">
+            <div class="it-badge badge-purple">Fase 4 · Automação</div>
+          </div>
+          <h3 style="margin-bottom:8px">Análise agendada e chamados automáticos</h3>
+          <ul>
+            <li>Cronjob semanal dispara a análise automaticamente</li>
+            <li>NEGATIVOS → abre chamado no ClickUp via API</li>
+            <li>SEM DATA → notifica Gestão de Dados automaticamente</li>
+            <li>Histórico de execuções com comparativo entre semanas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert green">
+        <div class="alert-icon">🔧</div>
+        <div class="alert-text">
+          <h4>Stack tecnológico atual do Grimmjow</h4>
+          <p>Python 3 · Pandas · OpenPyXL · Tkinter. A lógica de negócio está 100% isolada na função <code style="background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;font-size:10px">processar()</code> — pode ser importada diretamente por qualquer serviço Flask/FastAPI sem reescrita.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 9 — INTEGRAÇÃO TI (PROJETO BKO) ══ -->
+  <div class="slide" id="s9">
+    <div class="slide-body">
+      <div class="sec-title purple">Integração TI · Projeto BKO</div>
+      <div class="slide-title">Integrações necessárias para a nova tela</div>
+      <div class="slide-sub">O Projeto BKO depende de 3 integrações técnicas que o time de TI precisa implementar ou coordenar com parceiros.</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Integração</th><th>O que precisa</th><th>Responsável</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>API ExperIP</strong></td>
+            <td>Endpoint para buscar últimos 3 protocolos por celular do cliente. URL gravação: /api/queueRecords/{ano}/{mês}/{dia}/{ID}/{protocolo}.mp3</td>
+            <td>Rodrigo (ExperIP) + Eduardo (BOLD)</td>
+            <td><span class="badge badge-amber">Pendente endpoint</span></td>
+          </tr>
+          <tr>
+            <td><strong>BKO → Chatwoot</strong></td>
+            <td>Ao confirmar cancelamento: localizar cliente por celular → disparar HSM via Inbox iGreen → retornar protocolo e link da conversa ao BKO</td>
+            <td>David Santos (Chatwoot Dev)</td>
+            <td><span class="badge badge-amber">Aguard. requisitos</span></td>
+          </tr>
+          <tr>
+            <td><strong>Nova tela BKO</strong></td>
+            <td>Tela de cancelamento/retenção com: dropdown dinâmico, trava Validado Sucesso, contador 50 chars, protocolo read-only, histórico imutável</td>
+            <td>TI iGreen</td>
+            <td><span class="badge badge-blue">Sprint planejada</span></td>
+          </tr>
+          <tr>
+            <td><strong>Correção de dados</strong></td>
+            <td>Auditar e corrigir 3.537 clientes com status Validado Sucesso incorreto. Corrigir bug de cancelamentos salvos sem informação.</td>
+            <td>TI iGreen + Gestores</td>
+            <td><span class="badge badge-red">Alta prioridade</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="div-line"></div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Regras de negócio críticas para o TI implementar</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="alert red" style="margin:0"><div class="alert-icon">🔒</div><div class="alert-text"><h4>RN-01 · Trava Validado Sucesso</h4><p>Se Validado Sucesso = N → bloquear cancelamento e redirecionar para reprovação.</p></div></div>
+        <div class="alert blue" style="margin:0"><div class="alert-icon">⚡</div><div class="alert-text"><h4>RN-03 · HSM automático</h4><p>Sem confirmação do Chatwoot → cancelamento não é efetivado no BKO.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 10 — ROADMAP ══ -->
+  <div class="slide" id="s10">
+    <div class="slide-body">
+      <div class="sec-title">Roadmap · Próximos Passos</div>
+      <div class="slide-title">O que já foi entregue e o que vem a seguir</div>
+      <div class="slide-sub">Visão consolidada dos dois projetos e do caminho de integração ao sistema interno.</div>
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Grimmjow — App desktop funcional</h4>
+            <p>Análise de faturamento automatizada com 5 status, meses faltantes automáticos, Excel formatado com tema claro iGreen.</p>
+            <span class="step-tag tag-done">✓ Entregue</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Grimmjow — Deploy em servidor interno (TI)</h4>
+            <p>Hospedar o app na rede interna para acesso de toda a equipe sem configuração local. Pré-requisito para integração com API.</p>
+            <span class="step-tag tag-next">Próximo passo</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Projeto BKO — Correção de dados (TI)</h4>
+            <p>Auditar 3.537 clientes com status incorreto + corrigir bug de cancelamentos sem informação. Pré-requisito para go-live.</p>
+            <span class="step-tag tag-wip">Em andamento</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num purple">4</div>
+          <div class="step-content">
+            <h4>Projeto BKO — Sprint de desenvolvimento (TI)</h4>
+            <p>Desenvolver nova tela de cancelamento/retenção no BKO com todas as regras de negócio, integrações ExperIP e Chatwoot.</p>
+            <span class="step-tag tag-pending">Semana 2</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num purple">5</div>
+          <div class="step-content">
+            <h4>Projeto BKO — Go-live e monitoramento</h4>
+            <p>Homologação, treinamento das equipes e monitoramento dos primeiros 30 dias pós-implantação.</p>
+            <span class="step-tag tag-next">Semana 5</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <h4>Grimmjow → Integração nativa ao BackOffice</h4>
+            <p>Migrar lógica Python para microserviço. Consumir API do BKO diretamente. Análise agendada com abertura automática de chamados.</p>
+            <span class="step-tag tag-next">Roadmap futuro</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" id="btn-prev" onclick="navSlide(-1)" disabled>← Anterior</button>
+    <button class="btn btn-next" id="btn-next" onclick="navSlide(1)">Próximo →</button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 10;
+let cur = 1;
+
+const PILLS = [
+  { label: 'Capa',            slide: 1,  cls: '' },
+  { label: 'Grimmjow — Problema', slide: 2, cls: '' },
+  { label: 'Processo anterior',   slide: 3, cls: '' },
+  { label: 'Como é agora',        slide: 4, cls: '' },
+  { label: 'Antes x Depois',      slide: 5, cls: '' },
+  { label: 'BKO — Problema',      slide: 6, cls: 'purple' },
+  { label: 'BKO — Antes x Depois',slide: 7, cls: 'purple' },
+  { label: 'TI · Grimmjow',       slide: 8, cls: 'blue' },
+  { label: 'TI · Projeto BKO',    slide: 9, cls: 'blue' },
+  { label: 'Roadmap',             slide:10, cls: 'amber' },
+];
+
+const pillsEl = document.getElementById('nav-pills');
+PILLS.forEach(p => {
+  const el = document.createElement('button');
+  el.className = 'nav-pill' + (p.cls ? ' ' + p.cls : '') + (p.slide === 1 ? ' active' : '');
+  el.textContent = p.label;
+  el.onclick = () => goTo(p.slide);
+  el.id = 'pill-' + p.slide;
+  pillsEl.appendChild(el);
+});
+
+function goTo(n) {
+  document.getElementById('s' + cur).classList.remove('active');
+  document.getElementById('pill-' + cur).classList.remove('active');
+  cur = Math.max(1, Math.min(TOTAL, n));
+  document.getElementById('s' + cur).classList.add('active');
+  document.getElementById('pill-' + cur).classList.add('active');
+  document.getElementById('counter').textContent = 'Slide ' + cur + ' de ' + TOTAL;
+  document.getElementById('btn-prev').disabled = cur === 1;
+  document.getElementById('btn-next').disabled = cur === TOTAL;
+  document.getElementById('btn-next').textContent = cur === TOTAL ? 'Finalizar ✓' : 'Próximo →';
+  // scroll pill into view
+  document.getElementById('pill-' + cur).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navSlide(d) { goTo(cur + d); }
+</script>
+</body>
+</html>
