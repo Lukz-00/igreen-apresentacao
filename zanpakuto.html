@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iGreen — Dashboard de Operações</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e1117;--surface:#161b24;--surface2:#1c2333;--surface3:#222d3a;
+  --border:#263040;--border2:#2e3c4e;
+  --accent:#22c55e;--accent-glow:rgba(34,197,94,0.12);
+  --red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#a855f7;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --font:'Inter',system-ui,sans-serif;--r:10px;--r-lg:14px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sb-logo{padding:20px 20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.sb-logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#000;flex-shrink:0}
+.sb-logo-txt{font-weight:700;font-size:15px;color:var(--text)}
+.sb-logo-sub{font-size:10px;color:var(--text3)}
+.sb-nav{flex:1;padding:12px 0;overflow-y:auto}
+.sb-section{padding:4px 12px 2px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:8px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border-left:2px solid transparent;margin:1px 0}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.sb-item.active{background:var(--accent-glow);color:var(--accent);border-left-color:var(--accent)}
+.sb-item.active-purple{background:rgba(168,85,247,.1);color:var(--purple);border-left-color:var(--purple)}
+.sb-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
+.sb-item.active svg,.sb-item.active-purple svg{opacity:1}
+.sb-foot{padding:14px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-user-name{font-size:12px;font-weight:600;color:var(--text)}
+.sb-user-role{font-size:10px;color:var(--text3)}
+
+/* CONTENT */
+.content{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text)}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
+.breadcrumb span{cursor:pointer;transition:color .15s}
+.breadcrumb span:hover{color:var(--accent)}
+.breadcrumb .sep{color:var(--border2)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.upload-pill{display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:100px;border:1px dashed var(--border2);background:transparent;color:var(--text2);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s}
+.upload-pill:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+.upload-pill.loaded{border-style:solid;border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+.upload-pill svg{width:13px;height:13px}
+.last-upd{font-size:11px;color:var(--text3);padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:100px}
+input[type=file]{display:none}
+
+/* LOADING */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.loading-overlay.active{display:flex}
+.loading-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px 36px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.loading-spinner{width:36px;height:36px;border:2.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-box p{font-size:13px;color:var(--text2);font-weight:500}
+
+.main{flex:1;overflow-y:auto;padding:24px 28px 60px}
+.home-hero{margin-bottom:32px}
+.home-hero h1{font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
+.home-hero p{font-size:13px;color:var(--text3);max-width:480px}
+
+/* FAMILY CARDS */
+.forn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:36px}
+.forn-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.forn-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;opacity:.8}
+.forn-card.thopen::before{background:linear-gradient(90deg,#22c55e,#84cc16)}
+.forn-card.comerc::before{background:linear-gradient(90deg,#3b82f6,#a855f7)}
+.forn-card.ivolt::before{background:linear-gradient(90deg,#a855f7,#7c3aed)}
+.forn-card.aza::before{background:linear-gradient(90deg,#f59e0b,#f97316)}
+.forn-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.forn-card.thopen:hover{border-color:rgba(34,197,94,.4)}
+.forn-card.comerc:hover{border-color:rgba(59,130,246,.4)}
+.forn-card.ivolt:hover{border-color:rgba(168,85,247,.4)}
+.forn-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.forn-card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+.forn-card.thopen .forn-card-icon{background:rgba(34,197,94,.15);color:#22c55e}
+.forn-card.comerc .forn-card-icon{background:rgba(59,130,246,.15);color:#3b82f6}
+.forn-card.ivolt .forn-card-icon{background:rgba(168,85,247,.15);color:#a855f7;font-size:22px}
+.forn-card-status{font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px}
+.forn-card.thopen .forn-card-status{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2)}
+.forn-card.comerc .forn-card-status{background:rgba(59,130,246,.1);color:#3b82f6;border:1px solid rgba(59,130,246,.2)}
+.forn-card.ivolt .forn-card-status{background:rgba(168,85,247,.1);color:#a855f7;border:1px solid rgba(168,85,247,.2)}
+.forn-card h2{font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}
+.forn-card p{font-size:12px;color:var(--text3);margin-bottom:18px}
+.forn-card-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.forn-stat{background:var(--surface2);border-radius:8px;padding:10px 12px}
+.forn-stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:600}
+.forn-stat-val{font-size:16px;font-weight:700;color:var(--text)}
+.forn-card-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:var(--font)}
+.forn-card.thopen .forn-card-btn{background:rgba(34,197,94,.12);color:#22c55e}
+.forn-card.thopen .forn-card-btn:hover{background:rgba(34,197,94,.22)}
+.forn-card.comerc .forn-card-btn{background:rgba(59,130,246,.12);color:#3b82f6}
+.forn-card.comerc .forn-card-btn:hover{background:rgba(59,130,246,.22)}
+.forn-card.ivolt .forn-card-btn{background:rgba(168,85,247,.12);color:#a855f7}
+.forn-card.ivolt .forn-card-btn:hover{background:rgba(168,85,247,.22)}
+
+/* METRICS */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{display:flex;align-items:center;gap:8px}
+.sec-dot{width:3px;height:18px;background:var(--accent);border-radius:2px;flex-shrink:0}
+.sec-title h2{font-size:14px;font-weight:600;color:var(--text)}
+.sec-badge{font-size:10px;font-weight:600;padding:2px 9px;border-radius:100px;background:var(--accent-glow);color:var(--accent);border:1px solid rgba(34,197,94,.2)}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.metrics-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;transition:border-color .18s}
+.mc:hover{border-color:var(--border2)}
+.mc-accent{position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r) var(--r) 0 0}
+.mc-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.mc-val{font-size:26px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-.5px}
+.mc-sub{font-size:11px;color:var(--text3);margin-top:5px}
+.sec-divider{height:1px;background:var(--border);margin:24px 0}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;font-size:10px;font-weight:600}
+.badge.ok{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.badge.warn{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.badge.crit{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.badge.purple{background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.2)}
+
+/* TABLE */
+.tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:12px}
+.tbl-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tbl-hdr h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3)}
+.tbl-count{font-size:11px;padding:3px 11px;border-radius:100px;font-weight:600}
+.tbl-more{display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-top:1px solid var(--border);cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);transition:all .18s}
+.tbl-more:hover{color:var(--purple);background:rgba(168,85,247,.05)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:9px 16px;font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:var(--surface2);border-bottom:1px solid var(--border)}
+td{padding:9px 16px;color:var(--text2);border-bottom:.5px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.code-cell{font-family:'Courier New',monospace;font-size:11px;font-weight:600;color:var(--purple);background:rgba(168,85,247,.1);padding:2px 8px;border-radius:5px;border:1px solid rgba(168,85,247,.2);display:inline-block}
+
+/* iVOLT ESPECÍFICO */
+.iv-hero{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding:20px 24px;background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(124,58,237,.04));border:1px solid rgba(168,85,247,.2);border-radius:14px}
+.iv-hero-icon{width:48px;height:48px;border-radius:12px;background:rgba(168,85,247,.18);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.iv-hero h1{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px}
+.iv-hero p{font-size:12px;color:var(--text3)}
+
+/* Upload grid — mesmo visual do print */
+.iv-upload-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:12px}
+.iv-upload-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px}
+.iv-upload-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
+.iv-upload-box{background:var(--surface);border:1.5px dashed var(--border2);border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px}
+.iv-upload-box:hover{border-color:var(--purple);background:rgba(168,85,247,.04)}
+.iv-upload-box.loaded{border-style:solid;border-color:var(--purple);background:rgba(168,85,247,.07)}
+.iv-upload-box .ub-emoji{font-size:24px;margin-bottom:2px}
+.iv-upload-box .ub-name{font-size:12px;font-weight:600;color:var(--text2)}
+.iv-upload-box .ub-sub{font-size:10px;color:var(--text3)}
+.iv-upload-box .ub-tag{margin-top:4px;font-size:9px;font-weight:700;padding:2px 10px;border-radius:100px;background:rgba(168,85,247,.12);color:var(--purple);border:1px solid rgba(168,85,247,.2)}
+.iv-upload-box.loaded .ub-tag{background:rgba(168,85,247,.25);color:#c084fc}
+
+/* Fornecedora + Processo */
+.iv-control-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.iv-forn-label{font-size:11px;color:var(--text3);font-weight:600}
+.iv-forn-btn{padding:7px 18px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text2);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px}
+.iv-forn-btn:hover{border-color:var(--purple);color:var(--purple)}
+.iv-forn-btn.active{background:rgba(168,85,247,.15);border-color:var(--purple);color:var(--purple)}
+.iv-forn-dot{width:7px;height:7px;border-radius:50%;background:var(--purple)}
+.iv-spacer{flex:1}
+.iv-process-btn{display:flex;align-items:center;gap:8px;padding:10px 26px;border-radius:10px;border:none;background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(168,85,247,.3)}
+.iv-process-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(168,85,247,.4)}
+.iv-process-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.iv-export-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;border:1px solid rgba(168,85,247,.4);background:rgba(168,85,247,.08);color:var(--purple);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all .18s}
+.iv-export-btn:hover{background:rgba(168,85,247,.18)}
+
+/* Painel fornecedoras iVolt — igual ao Energizados */
+.iv-forn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px}
+.iv-forn-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.iv-forn-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.iv-forn-card.gv::before{background:linear-gradient(90deg,#a855f7,#7c3aed)}
+.iv-forn-card.sunne::before{background:linear-gradient(90deg,#f59e0b,#f97316)}
+.iv-forn-card.edp::before{background:linear-gradient(90deg,#3b82f6,#06b6d4)}
+.iv-forn-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.iv-forn-card.gv:hover{border-color:rgba(168,85,247,.4)}
+.iv-forn-card.sunne:hover{border-color:rgba(245,158,11,.4)}
+.iv-forn-card.edp:hover{border-color:rgba(59,130,246,.4)}
+.iv-forn-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.iv-forn-card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.iv-forn-card.gv .iv-forn-card-icon{background:rgba(168,85,247,.15);color:#a855f7}
+.iv-forn-card.sunne .iv-forn-card-icon{background:rgba(245,158,11,.15);color:#f59e0b}
+.iv-forn-card.edp .iv-forn-card-icon{background:rgba(59,130,246,.15);color:#3b82f6}
+.iv-forn-card-status{font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px}
+.iv-forn-card.gv .iv-forn-card-status{background:rgba(168,85,247,.1);color:#a855f7;border:1px solid rgba(168,85,247,.2)}
+.iv-forn-card.sunne .iv-forn-card-status{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
+.iv-forn-card.edp .iv-forn-card-status{background:rgba(59,130,246,.1);color:#3b82f6;border:1px solid rgba(59,130,246,.2)}
+.iv-forn-card h2{font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px}
+.iv-forn-card p{font-size:12px;color:var(--text3);margin-bottom:16px}
+.iv-forn-card-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.iv-forn-card-stat{background:var(--surface2);border-radius:8px;padding:9px 11px}
+.iv-forn-card-stat-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;font-weight:600}
+.iv-forn-card-stat-val{font-size:15px;font-weight:700;color:var(--text)}
+.iv-forn-card-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:9px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:var(--font)}
+.iv-forn-card.gv .iv-forn-card-btn{background:rgba(168,85,247,.12);color:#a855f7}
+.iv-forn-card.gv .iv-forn-card-btn:hover{background:rgba(168,85,247,.22)}
+.iv-forn-card.sunne .iv-forn-card-btn{background:rgba(245,158,11,.12);color:#f59e0b}
+.iv-forn-card.edp .iv-forn-card-btn{background:rgba(59,130,246,.12);color:#3b82f6}
+
+/* Análise abas */
+.iv-tab-bar{display:flex;gap:4px;border-bottom:1px solid var(--border);overflow-x:auto;padding-bottom:0;margin-bottom:20px}
+.iv-tab{padding:9px 16px;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;margin-bottom:-1px}
+.iv-tab:hover{color:var(--text)}
+.iv-tab.active{color:var(--purple);border-bottom-color:var(--purple)}
+.iv-tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 5px;border-radius:100px;font-size:9px;font-weight:700;background:rgba(168,85,247,.15);color:var(--purple);margin-left:5px}
+.iv-tab-content{display:none}
+.iv-tab-content.active{display:block}
+.iv-switcher-row{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.iv-sw-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text2);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all .18s}
+.iv-sw-btn:hover{border-color:var(--border2);color:var(--text)}
+.iv-sw-btn.active-gv{background:rgba(168,85,247,.1);border-color:rgba(168,85,247,.4);color:#a855f7}
+.iv-sw-btn.active-sunne{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.4);color:#f59e0b}
+.iv-sw-btn.active-edp{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.4);color:#3b82f6}
+.iv-sw-dot{width:8px;height:8px;border-radius:50%}
+.no-data-banner{display:none;background:rgba(30,35,45,.85);border:1px dashed var(--border2);border-radius:10px;padding:18px;text-align:center;font-size:12px;color:var(--text3);margin-bottom:14px}
+.no-data-banner.show{display:block}
+.privacy-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:7px 28px;font-size:11px;color:var(--text3);display:flex;align-items:center;gap:8px}
+.privacy-bar strong{color:var(--accent)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.main>*{animation:fadeUp .3s ease both}
+@media(max-width:960px){
+  .sidebar{width:52px}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .iv-upload-grid{grid-template-columns:1fr 1fr}
+  .iv-upload-grid-2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-box"><div class="loading-spinner"></div><p id="loading-msg">Processando…</p></div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">iG</div>
+    <div><div class="sb-logo-txt">iGreen</div><div class="sb-logo-sub">Operações</div></div>
+  </div>
+  <nav class="sb-nav">
+
+    <!-- Famílias -->
+    <div id="sb-g-familias">
+      <div class="sb-section">Navegação</div>
+      <div class="sb-item active" onclick="goFamilias()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Famílias</span>
+      </div>
+    </div>
+
+    <!-- Energizados -->
+    <div id="sb-g-energ" style="display:none">
+      <div class="sb-section">Navegação</div>
+      <div class="sb-item" onclick="goFamilias()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Famílias</span>
+      </div>
+      <div class="sb-item" id="sb-energ-home" onclick="goEnergHome()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Fornecedoras</span>
+      </div>
+      <div class="sb-section">Análise</div>
+      <div class="sb-item" id="sb-thopen" onclick="goEnergAnalysis('Thopen')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Thopen</span>
+      </div>
+      <div class="sb-item" id="sb-comerc" onclick="goEnergAnalysis('Comerc')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Comerc</span>
+      </div>
+    </div>
+
+    <!-- iVolt -->
+    <div id="sb-g-ivolt" style="display:none">
+      <div class="sb-section">Navegação</div>
+      <div class="sb-item" onclick="goFamilias()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Famílias</span>
+      </div>
+      <div class="sb-item" id="sb-ivolt-home" onclick="goIvoltHome()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Fornecedoras</span>
+      </div>
+      <div class="sb-section">Análise de Base</div>
+      <div class="sb-item active-purple" id="sb-ivolt-analise" onclick="goIvoltAnalise()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span>Análise de Base</span>
+      </div>
+    </div>
+
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-avatar">OP</div>
+    <div><div class="sb-user-name">Operações</div><div class="sb-user-role">iGreen Energy</div></div>
+  </div>
+</aside>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="topbar-title">iGreen — Painel de Operações</div>
+      <div class="breadcrumb" id="breadcrumb" style="display:none"></div>
+    </div>
+    <div class="topbar-right" id="topbar-uploads" style="display:none">
+      <label class="upload-pill" id="lbl-atraso" for="f-atraso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span id="lbl-atraso-txt">Atraso (.xlsx)</span>
+        <input type="file" id="f-atraso" accept=".xlsx,.xls" onchange="loadEnergFile(this,'atraso')">
+      </label>
+      <label class="upload-pill" id="lbl-taxa" for="f-taxa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span id="lbl-taxa-txt">Taxa (.xlsx)</span>
+        <input type="file" id="f-taxa" accept=".xlsx,.xls" onchange="loadEnergFile(this,'taxa')">
+      </label>
+      <div class="last-upd">⏱ <span id="last-update-txt">Dados de exemplo</span></div>
+    </div>
+  </div>
+
+  <div class="privacy-bar">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <strong>Privacidade:</strong> este dashboard não exibe nem armazena dados pessoais. Apenas o código interno é utilizado.
+  </div>
+
+  <div class="main">
+
+    <!-- ══ FAMÍLIAS ══ -->
+    <div id="page-familias">
+      <div class="home-hero"><h1>Selecione a Família</h1><p>Escolha o grupo de operações que deseja analisar.</p></div>
+      <div class="forn-grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
+        <div class="forn-card" onclick="goFamilia('Energizados')" style="cursor:pointer">
+          <div class="forn-card-head">
+            <div class="forn-card-icon" style="background:rgba(34,197,94,.15);font-size:22px">⚡</div>
+            <span class="forn-card-status" style="background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2)">Ativo</span>
+          </div>
+          <h2>Energizados</h2>
+          <p style="margin-bottom:18px">Thopen · Comerc — análise de injeção</p>
+          <button class="forn-card-btn" style="background:rgba(34,197,94,.12);color:#22c55e">Acessar →</button>
+        </div>
+        <div class="forn-card ivolt" onclick="goFamilia('iVolt')" style="cursor:pointer">
+          <div class="forn-card-head">
+            <div class="forn-card-icon">🔋</div>
+            <span class="forn-card-status">Ativo</span>
+          </div>
+          <h2>iVolt</h2>
+          <p style="margin-bottom:18px">GV · SUNNE · EDP — análise de base</p>
+          <button class="forn-card-btn">Acessar →</button>
+        </div>
+        <div class="forn-card aza" style="cursor:default;opacity:.55">
+          <div class="forn-card-head">
+            <div class="forn-card-icon" style="background:rgba(245,158,11,.15);font-size:22px">🪽</div>
+            <span class="forn-card-status" style="background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2)">Em construção</span>
+          </div>
+          <h2>Aza</h2>
+          <p style="margin-bottom:18px">Dashboard em desenvolvimento</p>
+          <button class="forn-card-btn" style="background:rgba(245,158,11,.08);color:#f59e0b;cursor:not-allowed">Em breve</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ENERGIZADOS HOME ══ -->
+    <div id="page-energ-home" style="display:none">
+      <div class="home-hero"><h1>Painel de Operações</h1><p>Selecione uma fornecedora para iniciar a análise.</p></div>
+      <div class="forn-grid">
+        <div class="forn-card thopen" onclick="goEnergAnalysis('Thopen')">
+          <div class="forn-card-head"><div class="forn-card-icon">TH</div><span class="forn-card-status">Dados de exemplo</span></div>
+          <h2>Thopen</h2><p>Análise de atraso e taxa de injeção</p>
+          <div class="forn-card-stats">
+            <div class="forn-stat"><div class="forn-stat-label">Clientes atraso</div><div class="forn-stat-val">—</div></div>
+            <div class="forn-stat"><div class="forn-stat-label">Taxa média</div><div class="forn-stat-val">—</div></div>
+          </div>
+          <button class="forn-card-btn">Acessar análise →</button>
+        </div>
+        <div class="forn-card comerc" onclick="goEnergAnalysis('Comerc')">
+          <div class="forn-card-head"><div class="forn-card-icon">CM</div><span class="forn-card-status">Aguardando dados</span></div>
+          <h2>Comerc</h2><p>Análise de atraso e taxa de injeção</p>
+          <div class="forn-card-stats">
+            <div class="forn-stat"><div class="forn-stat-label">Clientes atraso</div><div class="forn-stat-val">—</div></div>
+            <div class="forn-stat"><div class="forn-stat-label">Taxa média</div><div class="forn-stat-val">—</div></div>
+          </div>
+          <button class="forn-card-btn">Acessar análise →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ENERGIZADOS DASHBOARD ══ -->
+    <div id="page-energ-dash" style="display:none">
+      <div class="iv-switcher-row">
+        <span style="font-size:11px;color:var(--text3);font-weight:600">Fornecedora:</span>
+        <button class="iv-sw-btn" id="sw-thopen" onclick="goEnergAnalysis('Thopen')"><span class="iv-sw-dot" style="background:#22c55e"></span>Thopen</button>
+        <button class="iv-sw-btn" id="sw-comerc" onclick="goEnergAnalysis('Comerc')"><span class="iv-sw-dot" style="background:#3b82f6"></span>Comerc</button>
+      </div>
+      <div style="text-align:center;padding:60px 20px;color:var(--text3);font-size:13px">
+        Importe arquivos via os botões acima para visualizar a análise de injeção.
+      </div>
+    </div>
+
+    <!-- ══ iVOLT HOME (Painel Fornecedoras) ══ -->
+    <div id="page-ivolt-home" style="display:none">
+      <div class="home-hero"><h1>iVolt — Análise de Base</h1><p>Selecione uma fornecedora para iniciar a análise automática de base.</p></div>
+      <div class="iv-forn-grid">
+        <div class="iv-forn-card gv" onclick="goIvoltAnalise('GV')">
+          <div class="iv-forn-card-head">
+            <div class="iv-forn-card-icon">GV</div>
+            <span class="iv-forn-card-status" id="iv-home-gv-status">Aguardando dados</span>
+          </div>
+          <h2>GV</h2><p>Análise de base — enviados, atraso e represados</p>
+          <div class="iv-forn-card-stats">
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Enviados</div><div class="iv-forn-card-stat-val" id="iv-home-gv-env">—</div></div>
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Atraso</div><div class="iv-forn-card-stat-val" id="iv-home-gv-atr">—</div></div>
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Represados</div><div class="iv-forn-card-stat-val" id="iv-home-gv-rep">—</div></div>
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Faturamento</div><div class="iv-forn-card-stat-val" id="iv-home-gv-fat">—</div></div>
+          </div>
+          <button class="iv-forn-card-btn">Acessar análise →</button>
+        </div>
+        <div class="iv-forn-card sunne" onclick="goIvoltAnalise('SUNNE')">
+          <div class="iv-forn-card-head">
+            <div class="iv-forn-card-icon">SN</div>
+            <span class="iv-forn-card-status" id="iv-home-sunne-status">Aguardando dados</span>
+          </div>
+          <h2>SUNNE</h2><p>Análise de base — usa data de alteração (TI)</p>
+          <div class="iv-forn-card-stats">
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Enviados</div><div class="iv-forn-card-stat-val" id="iv-home-sunne-env">—</div></div>
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Atraso</div><div class="iv-forn-card-stat-val" id="iv-home-sunne-atr">—</div></div>
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Represados</div><div class="iv-forn-card-stat-val" id="iv-home-sunne-rep">—</div></div>
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Faturamento</div><div class="iv-forn-card-stat-val" id="iv-home-sunne-fat">—</div></div>
+          </div>
+          <button class="iv-forn-card-btn">Acessar análise →</button>
+        </div>
+        <div class="iv-forn-card edp" onclick="goIvoltAnalise('EDP')">
+          <div class="iv-forn-card-head">
+            <div class="iv-forn-card-icon">EDP</div>
+            <span class="iv-forn-card-status" id="iv-home-edp-status">Aguardando dados</span>
+          </div>
+          <h2>EDP</h2><p>Análise de base — status GANHO, EM ABERTO, PERDIDA</p>
+          <div class="iv-forn-card-stats">
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Enviados</div><div class="iv-forn-card-stat-val" id="iv-home-edp-env">—</div></div>
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Atraso</div><div class="iv-forn-card-stat-val" id="iv-home-edp-atr">—</div></div>
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Represados</div><div class="iv-forn-card-stat-val" id="iv-home-edp-rep">—</div></div>
+            <div class="iv-forn-card-stat"><div class="iv-forn-card-stat-label">Faturamento</div><div class="iv-forn-card-stat-val" id="iv-home-edp-fat">—</div></div>
+          </div>
+          <button class="iv-forn-card-btn">Acessar análise →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ iVOLT ANÁLISE ══ -->
+    <div id="page-ivolt-analise" style="display:none">
+
+      <!-- Switcher fornecedora -->
+      <div class="iv-switcher-row">
+        <span style="font-size:11px;color:var(--text3);font-weight:600">Fornecedora:</span>
+        <button class="iv-sw-btn" id="iv-sw-gv" onclick="goIvoltAnalise('GV')"><span class="iv-sw-dot" style="background:#a855f7"></span>GV</button>
+        <button class="iv-sw-btn" id="iv-sw-sunne" onclick="goIvoltAnalise('SUNNE')"><span class="iv-sw-dot" style="background:#f59e0b"></span>SUNNE</button>
+        <button class="iv-sw-btn" id="iv-sw-edp" onclick="goIvoltAnalise('EDP')"><span class="iv-sw-dot" style="background:#3b82f6"></span>EDP</button>
+        <div style="flex:1"></div>
+        <button class="iv-export-btn" id="iv-export-btn" style="display:none" onclick="ivExportar()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar Excel
+        </button>
+      </div>
+
+      <!-- Upload planilhas -->
+      <div class="iv-upload-section-title">Planilhas de Entrada</div>
+      <div class="iv-upload-grid">
+        <label class="iv-upload-box" id="ub-base" for="iv-base">
+          <div class="ub-emoji">📋</div>
+          <div class="ub-name">Base Completa</div>
+          <div class="ub-sub">BackOffice — obrigatório</div>
+          <span class="ub-tag" id="ub-base-tag">Selecionar</span>
+          <input type="file" id="iv-base" accept=".xlsx,.xls" onchange="ivUpload(this,'base')">
+        </label>
+        <label class="iv-upload-box" id="ub-rec" for="iv-rec">
+          <div class="ub-emoji">💰</div>
+          <div class="ub-name">Base de Recebíveis</div>
+          <div class="ub-sub">BackOffice — obrigatório</div>
+          <span class="ub-tag" id="ub-rec-tag">Selecionar</span>
+          <input type="file" id="iv-rec" accept=".xlsx,.xls" onchange="ivUpload(this,'rec')">
+        </label>
+        <label class="iv-upload-box" id="ub-fin" for="iv-fin">
+          <div class="ub-emoji">✅</div>
+          <div class="ub-name">Base de Finalizados</div>
+          <div class="ub-sub">BackOffice — obrigatório</div>
+          <span class="ub-tag" id="ub-fin-tag">Selecionar</span>
+          <input type="file" id="iv-fin" accept=".xlsx,.xls" onchange="ivUpload(this,'fin')">
+        </label>
+      </div>
+      <div class="iv-upload-grid-2">
+        <label class="iv-upload-box" id="ub-status" for="iv-status">
+          <div class="ub-emoji">📊</div>
+          <div class="ub-name">Status Fornecedora</div>
+          <div class="ub-sub">EDP/GV — opcional</div>
+          <span class="ub-tag" id="ub-status-tag">Selecionar</span>
+          <input type="file" id="iv-status" accept=".xlsx,.xls" onchange="ivUpload(this,'status')">
+        </label>
+        <label class="iv-upload-box" id="ub-alter" for="iv-alter">
+          <div class="ub-emoji">🔄</div>
+          <div class="ub-name">Datas Alteração</div>
+          <div class="ub-sub">SUNNE/TI — opcional</div>
+          <span class="ub-tag" id="ub-alter-tag">Selecionar</span>
+          <input type="file" id="iv-alter" accept=".xlsx,.xls" onchange="ivUpload(this,'alter')">
+        </label>
+      </div>
+
+      <!-- Botão processar -->
+      <div style="display:flex;justify-content:flex-end;margin-bottom:24px">
+        <button class="iv-process-btn" id="iv-process-btn" onclick="ivProcessar()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Processar Análise
+        </button>
+      </div>
+
+      <!-- Resultados -->
+      <div id="iv-results" style="display:none">
+        <div class="sec-divider" style="margin-top:0"></div>
+
+        <!-- Cards métricas principais -->
+        <div class="sec-hdr">
+          <div class="sec-title"><div class="sec-dot" style="background:var(--purple)"></div><h2>Resultado da Classificação</h2></div>
+          <span class="sec-badge" style="color:var(--purple);background:rgba(168,85,247,.12);border-color:rgba(168,85,247,.2)" id="iv-result-badge">—</span>
+        </div>
+
+        <div class="metrics" id="iv-metrics-grid"></div>
+
+        <div class="sec-divider"></div>
+
+        <!-- Abas de detalhamento -->
+        <div class="iv-tab-bar" id="iv-tab-bar"></div>
+        <div id="iv-tab-contents"></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /content -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ══════════════════════════════════════════
+// ESTADO GLOBAL
+// ══════════════════════════════════════════
+const IV_FILES = {base:null,rec:null,fin:null,status:null,alter:null};
+const IV_RESULTS = {}; // keyed by forn: {ENVIADOS, ATRASO, REPRESADOS, ...}
+let IV_FORN = 'GV';
+let FAMILIA = '';
+let ENERG_FORN = 'Thopen';
+
+// ══════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════
+const PAGES = ['page-familias','page-energ-home','page-energ-dash','page-ivolt-home','page-ivolt-analise'];
+function showPage(id){PAGES.forEach(p=>{document.getElementById(p).style.display=p===id?'block':'none'})}
+
+function setSbGrupo(g){
+  document.getElementById('sb-g-familias').style.display=g==='familias'?'block':'none';
+  document.getElementById('sb-g-energ').style.display=g==='energ'?'block':'none';
+  document.getElementById('sb-g-ivolt').style.display=g==='ivolt'?'block':'none';
+}
+
+function setBreadcrumb(parts){
+  const bc=document.getElementById('breadcrumb');
+  if(!parts.length){bc.style.display='none';document.getElementById('topbar-title').style.display='block';return;}
+  bc.style.display='flex';
+  document.getElementById('topbar-title').style.display='none';
+  bc.innerHTML=parts.map((p,i)=>i===parts.length-1
+    ?`<span style="color:var(--text2);cursor:default">${p.label}</span>`
+    :`<span onclick="${p.fn}">${p.label}</span><span class="sep">›</span>`
+  ).join('');
+}
+
+function clearSbActive(){
+  document.querySelectorAll('.sb-item').forEach(el=>{el.classList.remove('active','active-purple')});
+}
+
+function goFamilias(){
+  showPage('page-familias');setSbGrupo('familias');
+  clearSbActive();document.querySelector('#sb-g-familias .sb-item').classList.add('active');
+  document.getElementById('topbar-uploads').style.display='none';
+  setBreadcrumb([]);
+}
+
+function goFamilia(f){
+  FAMILIA=f;
+  if(f==='Energizados'){goEnergHome();}
+  else if(f==='iVolt'){goIvoltHome();}
+}
+
+function goEnergHome(){
+  showPage('page-energ-home');setSbGrupo('energ');
+  clearSbActive();document.getElementById('sb-energ-home').classList.add('active');
+  document.getElementById('topbar-uploads').style.display='none';
+  setBreadcrumb([{label:'Famílias',fn:'goFamilias()'},{label:'Energizados'}]);
+}
+
+function goEnergAnalysis(forn){
+  ENERG_FORN=forn;
+  showPage('page-energ-dash');setSbGrupo('energ');
+  clearSbActive();
+  document.getElementById('sb-'+forn.toLowerCase()).classList.add('active');
+  document.getElementById('topbar-uploads').style.display='flex';
+  document.getElementById('sw-thopen').className='iv-sw-btn'+(forn==='Thopen'?' active-gv':'');
+  document.getElementById('sw-comerc').className='iv-sw-btn'+(forn==='Comerc'?' active-edp':'');
+  setBreadcrumb([{label:'Famílias',fn:'goFamilias()'},{label:'Energizados',fn:'goEnergHome()'},{label:forn}]);
+}
+
+function goIvoltHome(){
+  showPage('page-ivolt-home');setSbGrupo('ivolt');
+  clearSbActive();document.getElementById('sb-ivolt-home').classList.add('active');
+  document.getElementById('topbar-uploads').style.display='none';
+  setBreadcrumb([{label:'Famílias',fn:'goFamilias()'},{label:'iVolt'}]);
+  ivUpdateHomeCards();
+}
+
+function goIvoltAnalise(forn){
+  if(forn)IV_FORN=forn;
+  showPage('page-ivolt-analise');setSbGrupo('ivolt');
+  clearSbActive();document.getElementById('sb-ivolt-analise').classList.add('active-purple');
+  document.getElementById('topbar-uploads').style.display='none';
+  setBreadcrumb([{label:'Famílias',fn:'goFamilias()'},{label:'iVolt',fn:'goIvoltHome()'},{label:'Análise de Base — '+IV_FORN}]);
+
+  // Atualiza switcher
+  ['gv','sunne','edp'].forEach(k=>{
+    const btn=document.getElementById('iv-sw-'+k);
+    if(!btn)return;
+    btn.className='iv-sw-btn'+(IV_FORN===k.toUpperCase()?(' active-'+k):'');
+  });
+
+  // Mostra resultado se já processou essa fornecedora
+  if(IV_RESULTS[IV_FORN]){
+    ivRenderResultado(IV_RESULTS[IV_FORN]);
+  } else {
+    document.getElementById('iv-results').style.display='none';
+    document.getElementById('iv-export-btn').style.display='none';
+  }
+}
+
+// ══════════════════════════════════════════
+// iVOLT — UPLOAD
+// ══════════════════════════════════════════
+function ivUpload(input,key){
+  const file=input.files[0];if(!file)return;
+  showLoading('Lendo '+file.name+'…');
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      IV_FILES[key]=XLSX.utils.sheet_to_json(ws,{defval:''});
+      const tag=document.getElementById('ub-'+key+'-tag');
+      const box=document.getElementById('ub-'+key);
+      const short=file.name.length>22?file.name.substring(0,20)+'…':file.name;
+      if(tag)tag.textContent='✓ '+short;
+      if(box)box.classList.add('loaded');
+    }catch(err){alert('Erro ao ler: '+file.name);}
+    finally{hideLoading();}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ══════════════════════════════════════════
+// iVOLT — HELPERS CLASSIFICAÇÃO
+// ══════════════════════════════════════════
+const normStr=s=>String(s||'').trim().toUpperCase();
+const preenchido=v=>{const s=normStr(v);return s!==''&&s!=='N/D'&&s!=='NAN'&&s!=='NONE'&&s!=='UNDEFINED';};
+const eSim=v=>['SIM','S','1','TRUE','VERDADEIRO'].includes(normStr(v));
+
+function getField(row,nomes){
+  const keys=Object.keys(row);
+  for(const n of nomes){
+    const k=keys.find(k=>normStr(k)===normStr(n));
+    if(k!==undefined)return String(row[k]||'').trim();
+    // fallback parcial
+    const k2=keys.find(k=>normStr(k).includes(normStr(n)));
+    if(k2!==undefined)return String(row[k2]||'').trim();
+  }
+  return '';
+}
+
+function parseDias(val){
+  if(!preenchido(val))return null;
+  // Tenta parse direto
+  let d=new Date(val);
+  if(!isNaN(d.getTime())&&d.getFullYear()>1970){
+    return Math.floor((Date.now()-d.getTime())/86400000);
+  }
+  // dd/mm/yyyy ou dd-mm-yyyy
+  const m=String(val).match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if(m){
+    d=new Date(+m[3],+m[2]-1,+m[1]);
+    if(!isNaN(d.getTime()))return Math.floor((Date.now()-d.getTime())/86400000);
+  }
+  // número serial Excel
+  const n=parseFloat(val);
+  if(!isNaN(n)&&n>40000){
+    d=new Date((n-25569)*86400*1000);
+    return Math.floor((Date.now()-d.getTime())/86400000);
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════
+// iVOLT — CLASSIFICAÇÃO PRINCIPAL
+// ══════════════════════════════════════════
+function ivClassificar(base,fin,rec,statusForn,dataAlter,forn){
+  // 1. Códigos finalizados (cruzamento = ENVIADOS)
+  const COD_FIN=new Set(fin.map(r=>normStr(getField(r,['Codigo','Cod','ID','Codigo Cliente']))));
+
+  // 2. Códigos Recebíveis (= boletando)
+  const COD_REC=new Set(rec.map(r=>normStr(getField(r,['Codigo Cliente','Codigo','Cod','ID']))));
+
+  // 3. Mapa status fornecedora
+  const MAPA_SF={};
+  if(statusForn){statusForn.forEach(r=>{const vs=Object.values(r);MAPA_SF[normStr(vs[0])]=normStr(vs[1]||'');});}
+
+  // 4. Mapa datas alteração (SUNNE)
+  const MAPA_ALT={};
+  if(dataAlter){dataAlter.forEach(r=>{const vs=Object.values(r);MAPA_ALT[normStr(vs[0])]=vs[1]||'';});}
+
+  const abas={ENVIADOS:[],ATRASO:[],MOT_PEND:[],MOT_CANCEL:[],REPRESADOS:[],DEVOLUTIVA:[],CANCELAR:[],FATURAMENTO:[],IND:[],ATENDIMENTO:[]};
+  const usados=new Set();
+
+  base.forEach(row=>{
+    const cod=normStr(getField(row,['Codigo','Cod','ID']));
+
+    // Campos chave
+    const dataAtivo=getField(row,['Data Ativo','Data Ativacao Original']);
+    const dataRef=forn==='SUNNE'&&MAPA_ALT[cod]?MAPA_ALT[cod]:dataAtivo;
+    const dias=parseDias(dataRef)??parseDias(dataAtivo);
+
+    const enviado=COD_FIN.has(cod);
+    const boletando=COD_REC.has(cod);
+    const comAtraso=dias!==null&&dias>=120;
+    const dataAtivPreench=preenchido(dataAtivo);
+    const validado=eSim(getField(row,['Validado Sucesso','Validado']));
+    const rateio=eSim(getField(row,['Rateio']));
+    const devVazia=!preenchido(getField(row,['Devolutiva']));
+    const devIntVazia=!preenchido(getField(row,['Devolutiva Interna']));
+    const jornadaStatus=normStr(getField(row,['Jornada Status']));
+    const sfStatus=MAPA_SF[cod]||'N/D';
+
+    // ── ENVIADOS (cruzamento com finalizados) ──
+    if(enviado){
+      abas.ENVIADOS.push(row);
+      usados.add(cod);
+      if(boletando) abas.FATURAMENTO.push(row);
+      if(boletando&&comAtraso) abas.IND.push(row);
+      return;
+    }
+
+    // ── ATRASO DE INJEÇÃO (≥120 dias, data ativo preenchida) ──
+    if(dataAtivPreench&&comAtraso){
+      if(forn==='EDP'||forn==='GV'){
+        if(sfStatus==='EM ABERTO'){abas.MOT_PEND.push(row);usados.add(cod);return;}
+        if(sfStatus==='PERDIDA'){abas.MOT_CANCEL.push(row);usados.add(cod);return;}
+      }
+      abas.ATRASO.push(row);usados.add(cod);return;
+    }
+
+    // ── TIME DEVOLUTIVA ──
+    if(!devVazia||!devIntVazia){abas.DEVOLUTIVA.push(row);usados.add(cod);return;}
+
+    // ── CANCELAR BKO ──
+    if(jornadaStatus==='CANCELADO'){abas.CANCELAR.push(row);usados.add(cod);return;}
+
+    // ── REPRESADOS (validado, sem rateio, sem devolutiva, data ativo preenchida) ──
+    if(validado&&!rateio&&devVazia&&devIntVazia&&dataAtivPreench){
+      abas.REPRESADOS.push(row);usados.add(cod);return;
+    }
+
+    // ── ATENDIMENTO ──
+    if(!usados.has(cod)){abas.ATENDIMENTO.push(row);usados.add(cod);}
+  });
+
+  return abas;
+}
+
+// ══════════════════════════════════════════
+// iVOLT — PROCESSAR
+// ══════════════════════════════════════════
+function ivProcessar(){
+  if(!IV_FILES.base||!IV_FILES.rec||!IV_FILES.fin){
+    alert('Selecione as 3 planilhas obrigatórias:\n• Base Completa\n• Base de Recebíveis\n• Base de Finalizados');return;
+  }
+  showLoading('Classificando clientes…');
+  setTimeout(()=>{
+    try{
+      const res=ivClassificar(IV_FILES.base,IV_FILES.fin,IV_FILES.rec,IV_FILES.status,IV_FILES.alter,IV_FORN);
+      IV_RESULTS[IV_FORN]=res;
+      ivRenderResultado(res);
+      ivUpdateHomeCards();
+      document.getElementById('iv-export-btn').style.display='flex';
+    }catch(err){console.error(err);alert('Erro ao processar: '+err.message);}
+    finally{hideLoading();}
+  },60);
+}
+
+// ══════════════════════════════════════════
+// iVOLT — DEFINIÇÃO DAS ABAS
+// ══════════════════════════════════════════
+const IV_ABAS=[
+  {key:'ENVIADOS',    label:'Enviados',           cor:'#22c55e', acento:'var(--accent)',   principal:true},
+  {key:'ATRASO',      label:'Atraso de Injeção',  cor:'#ef4444', acento:'var(--red)',      principal:true},
+  {key:'REPRESADOS',  label:'Represados',          cor:'#3b82f6', acento:'var(--blue)',     principal:true},
+  {key:'FATURAMENTO', label:'Faturamento',         cor:'#22c55e', acento:'var(--accent)',   principal:false},
+  {key:'IND',         label:'Inadimplentes',       cor:'#ef4444', acento:'var(--red)',      principal:false},
+  {key:'DEVOLUTIVA',  label:'Time Devolutiva',     cor:'#a855f7', acento:'var(--purple)',   principal:false},
+  {key:'CANCELAR',    label:'Cancelar BKO',        cor:'#ef4444', acento:'var(--red)',      principal:false},
+  {key:'MOT_PEND',    label:'Motivo Pendência',    cor:'#f59e0b', acento:'var(--amber)',    principal:false},
+  {key:'MOT_CANCEL',  label:'Motivo Cancelamento', cor:'#f97316', acento:'var(--amber)',    principal:false},
+  {key:'ATENDIMENTO', label:'Atendimento',         cor:'#64748b', acento:'var(--text3)',    principal:false},
+];
+
+// ══════════════════════════════════════════
+// iVOLT — RENDERIZAR RESULTADO
+// ══════════════════════════════════════════
+function ivRenderResultado(res){
+  const total=IV_FILES.base?IV_FILES.base.length:0;
+  document.getElementById('iv-result-badge').textContent=IV_FORN+' · '+total.toLocaleString('pt-BR')+' clientes processados';
+  document.getElementById('iv-results').style.display='block';
+
+  // Métricas — as 3 principais em destaque + resumo das demais
+  const principais=IV_ABAS.filter(a=>a.principal);
+  const demais=IV_ABAS.filter(a=>!a.principal&&(res[a.key]||[]).length>0);
+
+  let metricsHTML=principais.map(a=>`
+    <div class="mc" style="cursor:pointer" onclick="ivShowTab('${a.key}')">
+      <div class="mc-accent" style="background:${a.cor}"></div>
+      <div class="mc-label">${a.label}</div>
+      <div class="mc-val" style="color:${a.cor}">${(res[a.key]||[]).length.toLocaleString('pt-BR')}</div>
+      <div class="mc-sub">${total>0?Math.round((res[a.key]||[]).length/total*100):0}% do total</div>
+    </div>`).join('');
+
+  // Demais em linha menor
+  if(demais.length){
+    metricsHTML+=demais.map(a=>`
+      <div class="mc" style="cursor:pointer" onclick="ivShowTab('${a.key}')">
+        <div class="mc-accent" style="background:${a.cor}"></div>
+        <div class="mc-label">${a.label}</div>
+        <div class="mc-val" style="font-size:20px;color:${a.cor}">${(res[a.key]||[]).length.toLocaleString('pt-BR')}</div>
+        <div class="mc-sub">${total>0?Math.round((res[a.key]||[]).length/total*100):0}%</div>
+      </div>`).join('');
+  }
+
+  document.getElementById('iv-metrics-grid').innerHTML=metricsHTML;
+  document.getElementById('iv-metrics-grid').style.gridTemplateColumns=`repeat(${Math.min(principais.length+demais.length,4)},minmax(0,1fr))`;
+
+  // Tab bar
+  const tabBar=document.getElementById('iv-tab-bar');
+  tabBar.innerHTML=IV_ABAS.filter(a=>(res[a.key]||[]).length>0).map(a=>`
+    <div class="iv-tab" id="ivtab-${a.key}" onclick="ivShowTab('${a.key}')">
+      ${a.label}<span class="iv-tab-badge" style="background:${a.cor}22;color:${a.cor}">${(res[a.key]||[]).length.toLocaleString('pt-BR')}</span>
+    </div>`).join('');
+
+  // Conteúdos das abas
+  const contents=document.getElementById('iv-tab-contents');
+  contents.innerHTML=IV_ABAS.map(a=>`<div class="iv-tab-content" id="ivtc-${a.key}">${ivRenderTabela(res[a.key]||[],a)}</div>`).join('');
+
+  // Ativa primeira aba com dados
+  const primeira=IV_ABAS.find(a=>(res[a.key]||[]).length>0);
+  if(primeira)ivShowTab(primeira.key);
+}
+
+function ivShowTab(key){
+  document.querySelectorAll('.iv-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.iv-tab-content').forEach(t=>t.classList.remove('active'));
+  const tab=document.getElementById('ivtab-'+key);
+  const cont=document.getElementById('ivtc-'+key);
+  if(tab)tab.classList.add('active');
+  if(cont)cont.classList.add('active');
+}
+
+// Colunas prioritárias para exibição
+const COLS_SHOW=['Codigo','Nome','Instalacao','Regiao','Fornecedora','Data Ativo','Devolutiva','Devolutiva Interna','Jornada Status','Validado Sucesso','Rateio'];
+
+function ivRenderTabela(rows,aba){
+  if(!rows.length)return`<div style="text-align:center;padding:40px;color:var(--text3);font-size:13px">📭 Nenhum cliente nesta categoria.</div>`;
+
+  // Pega colunas disponíveis na ordem preferida
+  const allKeys=Object.keys(rows[0]);
+  const headers=COLS_SHOW.filter(c=>allKeys.includes(c));
+  // Adiciona colunas extras que não estão na lista mas existem (limitado a 6 extra)
+  allKeys.filter(k=>!headers.includes(k)&&!k.startsWith('__')).slice(0,4).forEach(k=>headers.push(k));
+
+  const MAX=300;
+  return`
+    <div class="tbl-card" style="margin-top:0">
+      <div class="tbl-hdr">
+        <h3>${aba.label}</h3>
+        <span class="tbl-count" style="color:${aba.cor};background:${aba.cor}18;border-color:${aba.cor}33;border:1px solid">${rows.length.toLocaleString('pt-BR')} clientes</span>
+      </div>
+      <div style="overflow-x:auto;max-height:440px;overflow-y:auto">
+        <table>
+          <thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+          <tbody>${rows.slice(0,MAX).map(r=>`<tr>${headers.map(h=>`<td>${h==='Codigo'?`<span class="code-cell">${r[h]||'—'}</span>`:r[h]||'—'}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+      </div>
+      ${rows.length>MAX?`<div class="tbl-more">Exibindo ${MAX} de ${rows.length.toLocaleString('pt-BR')} — exporte para ver todos</div>`:''}
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// iVOLT — HOME CARDS (atualiza stats)
+// ══════════════════════════════════════════
+function ivUpdateHomeCards(){
+  ['GV','SUNNE','EDP'].forEach(f=>{
+    const fk=f.toLowerCase();
+    const res=IV_RESULTS[f];
+    const statusEl=document.getElementById('iv-home-'+fk+'-status');
+    if(res){
+      if(statusEl)statusEl.textContent='Dados carregados';
+      const s=(k)=>(res[k]||[]).length.toLocaleString('pt-BR');
+      const el=(id)=>document.getElementById('iv-home-'+fk+'-'+id);
+      if(el('env'))el('env').textContent=s('ENVIADOS');
+      if(el('atr'))el('atr').textContent=s('ATRASO');
+      if(el('rep'))el('rep').textContent=s('REPRESADOS');
+      if(el('fat'))el('fat').textContent=s('FATURAMENTO');
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// iVOLT — EXPORTAR EXCEL
+// ══════════════════════════════════════════
+function ivExportar(){
+  const res=IV_RESULTS[IV_FORN];
+  if(!res){alert('Processe a análise primeiro.');return;}
+  showLoading('Gerando Excel…');
+  setTimeout(()=>{
+    try{
+      const wb=XLSX.utils.book_new();
+      // Resumo
+      const resumoData=[['Categoria','Qtd Clientes'],...IV_ABAS.map(a=>[a.label,(res[a.key]||[]).length])];
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(resumoData),'RESUMO');
+      // Base completa
+      if(IV_FILES.base&&IV_FILES.base.length)
+        XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(IV_FILES.base),'BASE COMPLETA');
+      // Cada aba
+      IV_ABAS.forEach(a=>{
+        if((res[a.key]||[]).length){
+          const rows=res[a.key].map(r=>{const c={...r};delete c.__dias;delete c.__boletando;return c;});
+          XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),a.label.substring(0,31));
+        }
+      });
+      const hoje=new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+      XLSX.writeFile(wb,`ANALISE_BASE_${IV_FORN}_${hoje}.xlsx`);
+    }catch(e){alert('Erro ao exportar: '+e.message);}
+    finally{hideLoading();}
+  },60);
+}
+
+// ══════════════════════════════════════════
+// ENERGIZADOS — upload simples
+// ══════════════════════════════════════════
+function loadEnergFile(input,type){
+  const file=input.files[0];if(!file)return;
+  showLoading('Lendo '+file.name+'…');
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{XLSX.read(e.target.result,{type:'array'});}
+    catch(e){alert('Erro ao ler o arquivo.');}
+    finally{hideLoading();document.getElementById('last-update-txt').textContent=new Date().toLocaleDateString('pt-BR');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ══════════════════════════════════════════
+// LOADING
+// ══════════════════════════════════════════
+function showLoading(msg){document.getElementById('loading-msg').textContent=msg||'Processando…';document.getElementById('loading-overlay').classList.add('active')}
+function hideLoading(){document.getElementById('loading-overlay').classList.remove('active')}
+
+// INIT
+goFamilias();
+</script>
+</body>
+</html>
